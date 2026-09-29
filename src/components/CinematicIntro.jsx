@@ -1,47 +1,158 @@
 import { useCallback, useRef, useState } from "react";
-import { VIDEO_PATH, BRAND_NAME, SUBTITLE, TAGLINE, BOTTLE_TILT } from "../config.js";
+import {
+  VIDEO_PATH,
+  BRAND_NAME,
+  SUBTITLE,
+  TAGLINE,
+  BOTTLE_TILT
+} from "../config.js";
+
 import { useScrollScrub } from "../hooks/useScrollScrub.js";
 import Butterfly from "./Butterfly.jsx";
 import PerfumeReveal from "./PerfumeReveal.jsx";
 
-const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-const ease = (t) => t * t * (3 - 2 * t);
+const clamp = (v, a = 0, b = 1) =>
+  Math.min(b, Math.max(a, v));
+
+const ease = (t) =>
+  t * t * (3 - 2 * t);
 
 export default function CinematicIntro() {
-  const track = useRef(null), video = useRef(null), intro = useRef(null), hint = useRef(null);
-  const glow = useRef(null), bottle = useRef(null), end = useRef(null), fly = useRef(null);
+  const track = useRef(null);
+  const video = useRef(null);
+  const intro = useRef(null);
+  const hint = useRef(null);
+  const glow = useRef(null);
+  const bottle = useRef(null);
+  const end = useRef(null);
+  const fly = useRef(null);
+
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
 
   const onFrame = useCallback((p) => {
-    const io = 1 - clamp((p - 0.02) / 0.2);
-    intro.current.style.opacity = io;
-    intro.current.style.transform = `translateY(${(1 - io) * -30}px)`;
-    hint.current.style.opacity = 0.75 * (1 - clamp(p / 0.05));
+    if (
+      !intro.current ||
+      !hint.current ||
+      !glow.current ||
+      !bottle.current ||
+      !end.current ||
+      !fly.current
+    ) {
+      return;
+    }
 
-    const bp = clamp((p - 0.55) / 0.4);
-    const W = innerWidth, H = innerHeight;
+    /* Intro */
 
-    fly.current.style.opacity = bp > 0 ? Math.min(1, bp * 3) : 0;
+    const introProgress =
+      clamp((p - 0.02) / 0.2);
+
+    const introOpacity =
+      1 - introProgress;
+
+    intro.current.style.opacity =
+      introOpacity;
+
+    intro.current.style.transform =
+      `translateY(${(1 - introOpacity) * -30}px)`;
+
+    hint.current.style.opacity =
+      0.75 * (1 - clamp(p / 0.05));
+
+    /* Butterfly */
+
+    const butterflyProgress =
+      clamp((p - 0.55) / 0.4);
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    fly.current.style.opacity =
+      butterflyProgress > 0
+        ? Math.min(1, butterflyProgress * 3)
+        : 0;
+
     fly.current.style.transform =
-      `translate(${W * 0.5 + Math.sin(bp * 7) * W * 0.05 - 17 + bp * W * 0.16}px,` +
-      `${H * (0.75 - 0.4 * bp) + Math.sin(bp * 11) * 12}px) ` +
-      `rotate(${Math.sin(bp * 6) * 14 + 10}deg) scale(${0.7 + bp * 0.5})`;
+      `translate(` +
+      `${W * 0.5 +
+        Math.sin(butterflyProgress * 7) *
+          W *
+          0.05 -
+        17 +
+        butterflyProgress * W * 0.16}px,` +
+      `${H *
+        (0.75 -
+          0.4 * butterflyProgress) +
+        Math.sin(
+          butterflyProgress * 11
+        ) *
+          12}px)` +
+      ` rotate(` +
+      `${Math.sin(
+        butterflyProgress * 6
+      ) *
+        14 +
+        10}deg)` +
+      ` scale(${0.7 + butterflyProgress * 0.5})`;
 
-    glow.current.style.opacity = clamp((p - 0.65) / 0.3);
+    /* Perfume glow */
 
-    const r = ease(clamp((p - 0.8) / 0.2));
-    bottle.current.style.opacity = r;
+    const glowProgress =
+      clamp((p - 0.62) / 0.25);
+
+    glow.current.style.opacity =
+      glowProgress;
+
+    glow.current.style.transform =
+      `translate(-50%, -50%) scale(${
+        0.8 + glowProgress * 0.25
+      })`;
+
+    /* Bottle */
+
+    const bottleProgress =
+      ease(clamp((p - 0.76) / 0.24));
+
+    bottle.current.style.opacity =
+      bottleProgress;
+
     bottle.current.style.transform =
-      `translateY(${(1 - r) * 110}px) rotate(${BOTTLE_TILT * r}deg)`;
+      `translateY(${
+        (1 - bottleProgress) * 110
+      }px)` +
+      ` rotate(${
+        BOTTLE_TILT * bottleProgress
+      }deg)` +
+      ` scale(${
+        0.92 +
+        bottleProgress * 0.08
+      })`;
 
-    const e = clamp((r - 0.7) / 0.3);
-    end.current.style.opacity = e;
-    end.current.style.transform = `translateY(${(1 - e) * 14}px)`;
+    /* Ending text */
+
+    const endProgress =
+      clamp(
+        (bottleProgress - 0.72) /
+          0.28
+      );
+
+    end.current.style.opacity =
+      endProgress;
+
+    end.current.style.transform =
+      `translateY(${
+        (1 - endProgress) * 14
+      }px)`;
   }, []);
 
-  const handleReady = useCallback(() => setReady(true), []);
-  const handleError = useCallback(() => setError(true), []);
+  const handleReady = useCallback(() => {
+    setReady(true);
+    setError(false);
+  }, []);
+
+  const handleError = useCallback(() => {
+    setError(true);
+  }, []);
 
   useScrollScrub({
     trackRef: track,
@@ -52,23 +163,35 @@ export default function CinematicIntro() {
   });
 
   return (
-    <main className="track" ref={track}>
-      <div className={`loader ${ready || error ? "off" : ""}`} role="status">
-        {error ? "Unable to load Nocturne" : BRAND_NAME}
+    <main
+      className="track"
+      ref={track}
+    >
+      <div
+        className={`loader ${
+          ready || error ? "off" : ""
+        }`}
+        role="status"
+        aria-live="polite"
+      >
+        {error
+          ? "Unable to load Nocturne"
+          : BRAND_NAME}
       </div>
 
       <section
         className="stage"
-        aria-label="NOCTURNE, a whisper of flowers after dark"
+        aria-label={`${BRAND_NAME}, ${TAGLINE}`}
       >
         <video
           ref={video}
           src={VIDEO_PATH}
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
           tabIndex={-1}
+          disablePictureInPicture
         />
 
         <div className="shade" />
@@ -81,13 +204,26 @@ export default function CinematicIntro() {
 
         <Butterfly ref={fly} />
 
-        <div className="intro" ref={intro}>
+        <div
+          className="intro"
+          ref={intro}
+        >
           <h1>{BRAND_NAME}</h1>
-          <p className="sub">{SUBTITLE}</p>
-          <p className="tag">{TAGLINE}</p>
+
+          <p className="sub">
+            {SUBTITLE}
+          </p>
+
+          <p className="tag">
+            {TAGLINE}
+          </p>
         </div>
 
-        <div className="scroll" ref={hint}>
+        <div
+          className="scroll"
+          ref={hint}
+          aria-hidden="true"
+        >
           SCROLL TO ENTER
           <i />
         </div>
