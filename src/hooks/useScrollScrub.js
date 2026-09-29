@@ -51,7 +51,26 @@ export function useScrollScrub({
         (video.duration || 0) - 0.05
       );
 
-      const t = clamp(cur / endAt) * maxTime;
+      const desiredTime = clamp(cur / endAt) * maxTime;
+
+      /*
+       * Mobile browsers may not have the requested part
+       * of the video buffered yet. Only seek inside a
+       * currently seekable range when one exists.
+       */
+      let t = desiredTime;
+
+      if (video.seekable.length > 0) {
+        const first = video.seekable.start(0);
+        const lastRange = video.seekable.end(
+          video.seekable.length - 1
+        );
+
+        t = Math.min(
+          Math.max(desiredTime, first),
+          lastRange - 0.05
+        );
+      }
 
       if (
         video.readyState >= 2 &&
