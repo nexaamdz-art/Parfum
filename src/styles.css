@@ -38,10 +38,6 @@ body {
   background: var(--bg);
 }
 
-/* =========================================================
-   SCROLL TRACK
-   ========================================================= */
-
 .track {
   position: relative;
 
@@ -50,10 +46,6 @@ body {
 
   background: var(--bg);
 }
-
-/* =========================================================
-   CINEMATIC STAGE
-   ========================================================= */
 
 .stage {
   position: sticky;
@@ -69,10 +61,6 @@ body {
   background: var(--bg);
 }
 
-/* =========================================================
-   VIDEO
-   ========================================================= */
-
 .stage video {
   position: absolute;
   inset: 0;
@@ -80,11 +68,6 @@ body {
   width: 100%;
   height: 100%;
 
-  /*
-    العودة إلى contain:
-    لا نقص أي جزء من الفيديو.
-    العطر والكتابة يبقيان في مكانهما الأصلي.
-  */
   object-fit: contain;
   object-position: center center;
 
@@ -111,10 +94,6 @@ body {
     );
 }
 
-/* =========================================================
-   SHADE
-   ========================================================= */
-
 .shade {
   position: absolute;
   inset: 0;
@@ -131,10 +110,6 @@ body {
       rgba(9, 9, 18, 0.48) 100%
     );
 }
-
-/* =========================================================
-   LOADER
-   ========================================================= */
 
 .loader {
   position: fixed;
@@ -177,9 +152,10 @@ body {
 
   width: min(90vw, 720px);
 
-  transform:
-    translate(-50%, -50%)
-    translateY(0);
+  /*
+    التمركز مستقل عن transform.
+  */
+  translate: -50% -50%;
 
   text-align: center;
 
@@ -237,7 +213,7 @@ body {
 }
 
 /* =========================================================
-   SCROLL HINT
+   SCROLL
    ========================================================= */
 
 .scroll {
@@ -253,8 +229,7 @@ body {
       env(safe-area-inset-bottom)
     );
 
-  transform:
-    translateX(-50%);
+  translate: -50% 0;
 
   display: flex;
 
@@ -307,9 +282,7 @@ body {
 
   aspect-ratio: 1;
 
-  transform:
-    translate(-50%, -50%)
-    scale(0.8);
+  translate: -50% -50%;
 
   border-radius: 50%;
 
@@ -344,6 +317,11 @@ body {
     min(42vw, 430px);
 
   max-height: 72vh;
+
+  /*
+    تمركز مستقل.
+  */
+  translate: -50% 0;
 
   opacity: 0;
 
@@ -403,8 +381,7 @@ body {
   width:
     min(90vw, 620px);
 
-  transform:
-    translate(-50%, 14px);
+  translate: -50% 0;
 
   opacity: 0;
 
@@ -461,7 +438,7 @@ body {
 }
 
 /* =========================================================
-   FLOAT ANIMATION
+   FLOAT
    ========================================================= */
 
 @keyframes floatBottle {
@@ -512,12 +489,6 @@ body {
     background: var(--bg);
   }
 
-  /*
-    مهم جدًا:
-    لا نستخدم cover هنا.
-    الفيديو يبقى كاملًا في المنتصف.
-  */
-
   .stage video {
     position: absolute;
     inset: 0;
@@ -536,25 +507,13 @@ body {
     mask-image: none;
   }
 
-  .shade {
-    background:
-      radial-gradient(
-        circle at 50% 45%,
-        transparent 0%,
-        rgba(9, 9, 18, 0.05) 50%,
-        rgba(9, 9, 18, 0.42) 100%
-      );
-  }
-
-  /* =====================================================
-     MOBILE INTRO
-     ===================================================== */
-
   .intro {
-    width: 88vw;
-
     left: 50%;
     top: 50%;
+
+    width: 88vw;
+
+    translate: -50% -50%;
   }
 
   .intro h1 {
@@ -584,16 +543,16 @@ body {
     font-size: 0.95rem;
   }
 
-  /* =====================================================
-     MOBILE SCROLL
-     ===================================================== */
-
   .scroll {
+    left: 50%;
+
     bottom:
       max(
         1.5rem,
         env(safe-area-inset-bottom)
       );
+
+    translate: -50% 0;
 
     font-size: 0.52rem;
 
@@ -605,38 +564,37 @@ body {
     height: 34px;
   }
 
-  /* =====================================================
-     MOBILE GLOW
-     ===================================================== */
-
   .glow {
+    left: 50%;
+    top: 50%;
+
     width: 90vw;
+
+    translate: -50% -50%;
 
     filter: blur(20px);
   }
 
-  /* =====================================================
-     MOBILE BOTTLE
-     ===================================================== */
-
   .bottle {
+    left: 50%;
+
     width:
       min(62vw, 300px);
 
     max-height: 62vh;
 
     bottom: 12%;
+
+    translate: -50% 0;
   }
 
   .bottle img {
     max-height: 62vh;
   }
 
-  /* =====================================================
-     MOBILE END
-     ===================================================== */
-
   .end {
+    left: 50%;
+
     width: 88vw;
 
     bottom:
@@ -644,6 +602,8 @@ body {
         7%,
         env(safe-area-inset-bottom)
       );
+
+    translate: -50% 0;
   }
 
   .end h2 {
@@ -675,7 +635,6 @@ body {
 
   .bottle {
     width: 68vw;
-
     bottom: 11%;
   }
 
@@ -700,9 +659,5 @@ body {
 
     scroll-behavior:
       auto !important;
-  }
-
-  .stage video {
-    object-fit: contain;
   }
 }
