@@ -42,7 +42,9 @@ export default function CinematicIntro() {
       return;
     }
 
-    /* Intro */
+    /* =====================================================
+       INTRO
+       ===================================================== */
 
     const introProgress =
       clamp((p - 0.02) / 0.2);
@@ -53,13 +55,22 @@ export default function CinematicIntro() {
     intro.current.style.opacity =
       introOpacity;
 
+    /*
+      مهم:
+      نحافظ على translateX(-50%)
+      حتى يبقى النص في منتصف الشاشة.
+    */
     intro.current.style.transform =
-      `translateY(${(1 - introOpacity) * -30}px)`;
+      `translate(-50%, -50%) translateY(${
+        (1 - introOpacity) * -30
+      }px)`;
 
     hint.current.style.opacity =
       0.75 * (1 - clamp(p / 0.05));
 
-    /* Butterfly */
+    /* =====================================================
+       BUTTERFLY
+       ===================================================== */
 
     const butterflyProgress =
       clamp((p - 0.55) / 0.4);
@@ -69,20 +80,28 @@ export default function CinematicIntro() {
 
     fly.current.style.opacity =
       butterflyProgress > 0
-        ? Math.min(1, butterflyProgress * 3)
+        ? Math.min(
+            1,
+            butterflyProgress * 3
+          )
         : 0;
 
     fly.current.style.transform =
       `translate(` +
       `${W * 0.5 +
-        Math.sin(butterflyProgress * 7) *
+        Math.sin(
+          butterflyProgress * 7
+        ) *
           W *
           0.05 -
         17 +
-        butterflyProgress * W * 0.16}px,` +
+        butterflyProgress *
+          W *
+          0.16}px,` +
       `${H *
         (0.75 -
-          0.4 * butterflyProgress) +
+          0.4 *
+            butterflyProgress) +
         Math.sin(
           butterflyProgress * 11
         ) *
@@ -93,9 +112,14 @@ export default function CinematicIntro() {
       ) *
         14 +
         10}deg)` +
-      ` scale(${0.7 + butterflyProgress * 0.5})`;
+      ` scale(${
+        0.7 +
+        butterflyProgress * 0.5
+      })`;
 
-    /* Perfume glow */
+    /* =====================================================
+       GLOW
+       ===================================================== */
 
     const glowProgress =
       clamp((p - 0.62) / 0.25);
@@ -105,30 +129,47 @@ export default function CinematicIntro() {
 
     glow.current.style.transform =
       `translate(-50%, -50%) scale(${
-        0.8 + glowProgress * 0.25
+        0.8 +
+        glowProgress * 0.25
       })`;
 
-    /* Bottle */
+    /* =====================================================
+       BOTTLE
+       ===================================================== */
 
     const bottleProgress =
-      ease(clamp((p - 0.76) / 0.24));
+      ease(
+        clamp(
+          (p - 0.76) / 0.24
+        )
+      );
 
     bottle.current.style.opacity =
       bottleProgress;
 
+    /*
+      مهم جدًا:
+      bottle لديه left: 50%.
+      لذلك يجب أن نضيف translateX(-50%).
+      هذا كان سبب ظهور العطر في الطرف.
+    */
     bottle.current.style.transform =
-      `translateY(${
-        (1 - bottleProgress) * 110
+      `translateX(-50%) translateY(${
+        (1 - bottleProgress) *
+        110
       }px)` +
       ` rotate(${
-        BOTTLE_TILT * bottleProgress
+        BOTTLE_TILT *
+        bottleProgress
       }deg)` +
       ` scale(${
         0.92 +
         bottleProgress * 0.08
       })`;
 
-    /* Ending text */
+    /* =====================================================
+       END TEXT
+       ===================================================== */
 
     const endProgress =
       clamp(
@@ -139,8 +180,12 @@ export default function CinematicIntro() {
     end.current.style.opacity =
       endProgress;
 
+    /*
+      نحافظ على translateX(-50%)
+      أثناء حركة النص النهائي.
+    */
     end.current.style.transform =
-      `translateY(${
+      `translate(-50%, 0) translateY(${
         (1 - endProgress) * 14
       }px)`;
   }, []);
