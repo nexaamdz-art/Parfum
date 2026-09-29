@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
-const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const clamp = (v, a = 0, b = 1) =>
+  Math.min(b, Math.max(a, v));
 
 export function useScrollScrub({
   trackRef,
@@ -14,113 +15,159 @@ export function useScrollScrub({
     const track = trackRef.current;
     const video = videoRef.current;
 
-    if (!track || !video) return;
+    if (!track || !video) {
+      return;
+    }
 
-    const reduce = matchMedia(
+    const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
     let target = 0;
-    let cur = 0;
-    let last = -1;
+    let current = 0;
+    let lastTime = -1;
+
     let raf = 0;
     let started = false;
     let startTimer = 0;
 
-    const progress = () => {
-      const r = track.getBoundingClientRect();
+    const getProgress = () => {
+      const rect =
+        track.getBoundingClientRect();
 
       return clamp(
-        -r.top / Math.max(1, r.height - innerHeight)
+        -rect.top /
+          Math.max(
+            1,
+            rect.height -
+              window.innerHeight
+          )
       );
     };
 
     const onScroll = () => {
-      target = progress();
+      target = getProgress();
     };
 
-    const tick = () => {
-      cur += (target - cur) * 0.14;
-
-      if (Math.abs(target - cur) < 0.0002) {
-        cur = target;
+    const seekVideo = (progress) => {
+      if (
+        video.readyState < 2 ||
+        !Number.isFinite(video.duration) ||
+        video.duration <= 0
+      ) {
+        return;
       }
 
-      const maxTime = Math.max(
-        0,
-        (video.duration || 0) - 0.05
-      );
-
-      const desiredTime = clamp(cur / endAt) * maxTime;
-
-      /*
-       * Mobile browsers may not have the requested part
-       * of the video buffered yet. Only seek inside a
-       * currently seekable range when one exists.
-       */
-      let t = desiredTime;
-
-      if (video.seekable.length > 0) {
-        const first = video.seekable.start(0);
-        const lastRange = video.seekable.end(
-          video.seekable.length - 1
+      const maxTime =
+        Math.max(
+          0,
+          video.duration - 0.05
         );
 
-        t = Math.min(
-          Math.max(desiredTime, first),
-          lastRange - 0.05
+      const desired =
+        clamp(progress / endAt) *
+        maxTime;
+
+      let time = desired;
+
+      /*
+       * Protect mobile browsers from seeking
+       * outside currently available ranges.
+       */
+
+      if (video.seekable.length > 0) {
+        const first =
+          video.seekable.start(0);
+
+        const last =
+          video.seekable.end(
+            video.seekable.length - 1
+          );
+
+        time = Math.min(
+          Math.max(desired, first),
+          Math.max(first, last - 0.05)
         );
       }
 
       if (
-        video.readyState >= 2 &&
-        Number.isFinite(t) &&
-        Math.abs(t - last) > 0.012
+        Number.isFinite(time) &&
+        Math.abs(time - lastTime) >
+          0.012
       ) {
         try {
-          video.currentTime = t;
-          last = t;
+          video.currentTime = time;
+          lastTime = time;
         } catch {}
       }
+    };
 
-      onFrame(cur);
-      raf = requestAnimationFrame(tick);
+    const tick = () => {
+      current +=
+        (target - current) * 0.14;
+
+      if (
+        Math.abs(target - current) <
+        0.0002
+      ) {
+        current = target;
+      }
+
+      seekVideo(current);
+
+      onFrame(current);
+
+      raf =
+        requestAnimationFrame(tick);
     };
 
     const start = () => {
-      if (started) return;
+      if (started) {
+        return;
+      }
 
       started = true;
 
       if (reduce) {
         if (
-          Number.isFinite(video.duration) &&
+          Number.isFinite(
+            video.duration
+          ) &&
           video.duration > 0
         ) {
-          video.currentTime = Math.max(
-            0,
-            video.duration - 0.05
-          );
+          video.currentTime =
+            Math.max(
+              0,
+              video.duration - 0.05
+            );
         }
 
         onReady?.();
         onFrame(1);
+
         return;
       }
 
       video.pause();
 
-      target = cur = progress();
+      target = current =
+        getProgress();
 
       onReady?.();
 
-      addEventListener("scroll", onScroll, {
-        passive: true
-      });
+      window.addEventListener(
+        "scroll",
+        onScroll,
+        { passive: true }
+      );
 
-      addEventListener("resize", onScroll);
+      window.addEventListener(
+        "resize",
+        onScroll
+      );
 
-      raf = requestAnimationFrame(tick);
+      raf =
+        requestAnimationFrame(tick);
     };
 
     const onLoaded = () => {
@@ -129,13 +176,21 @@ export function useScrollScrub({
       }
 
       if (
-        video.duration &&
-        Number.isFinite(video.duration)
+        Number.isFinite(
+          video.duration
+        ) &&
+        video.duration > 0
       ) {
-        video.currentTime = 0;
+        try {
+          video.currentTime = 0;
+        } catch {}
       }
 
-      startTimer = setTimeout(start, 150);
+      startTimer =
+        window.setTimeout(
+          start,
+          150
+        );
     };
 
     const onVideoError = () => {
@@ -165,16 +220,18 @@ export function useScrollScrub({
       onLoaded();
     }
 
-    const fallback = setTimeout(() => {
-      if (video.readyState >= 1) {
-        start();
-      } else {
-        onError?.();
-      }
-    }, 8000);
+    const fallback =
+      window.setTimeout(() => {
+        if (video.readyState >= 1) {
+          start();
+        } else {
+          onError?.();
+        }
+      }, 8000);
 
     return () => {
       cancelAnimationFrame(raf);
+
       clearTimeout(fallback);
       clearTimeout(startTimer);
 
@@ -193,8 +250,15 @@ export function useScrollScrub({
         onVideoError
       );
 
-      removeEventListener("scroll", onScroll);
-      removeEventListener("resize", onScroll);
+      window.removeEventListener(
+        "scroll",
+        onScroll
+      );
+
+      window.removeEventListener(
+        "resize",
+        onScroll
+      );
     };
   }, [
     trackRef,
