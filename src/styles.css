@@ -18,7 +18,7 @@ html {
   width: 100%;
   min-height: 100%;
   background: var(--bg);
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
 }
 
 body {
@@ -26,10 +26,12 @@ body {
   min-height: 100%;
   background: var(--bg);
   color: var(--ivory);
+
   font-family: "Jost", system-ui, sans-serif;
   font-weight: 300;
+
   overflow-x: hidden;
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
 }
 
 #root {
@@ -38,26 +40,44 @@ body {
   background: var(--bg);
 }
 
+/* =========================================================
+   MAIN SCROLL TRACK
+   ========================================================= */
+
 .track {
   position: relative;
+
   width: 100%;
-  min-height: 600vh;
   height: 600vh;
+  min-height: 600vh;
+
   background: var(--bg);
 }
+
+/* =========================================================
+   CINEMATIC STAGE
+   ========================================================= */
 
 .stage {
   position: sticky;
   top: 0;
+
   width: 100%;
   height: 100vh;
   height: 100dvh;
+
   min-height: 100vh;
   min-height: 100dvh;
+
   overflow: hidden;
   isolation: isolate;
+
   background: var(--bg);
 }
+
+/* =========================================================
+   VIDEO
+   ========================================================= */
 
 .stage video {
   position: absolute;
@@ -68,31 +88,42 @@ body {
   width: 100%;
   height: 100%;
 
-  object-fit: cover;
-  object-position: center;
+  /*
+    Desktop:
+    Keep the entire cinematic frame visible.
+  */
+  object-fit: contain;
+  object-position: center center;
 
   background: var(--bg);
 
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 22%,
-    #000 78%,
-    transparent
-  );
+  -webkit-mask-image:
+    linear-gradient(
+      90deg,
+      transparent,
+      #000 22%,
+      #000 78%,
+      transparent
+    );
 
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 22%,
-    #000 78%,
-    transparent
-  );
+  mask-image:
+    linear-gradient(
+      90deg,
+      transparent,
+      #000 22%,
+      #000 78%,
+      transparent
+    );
 }
+
+/* =========================================================
+   DARK CINEMATIC SHADE
+   ========================================================= */
 
 .shade {
   position: absolute;
   inset: 0;
+
   z-index: 2;
 
   pointer-events: none;
@@ -106,9 +137,14 @@ body {
     );
 }
 
+/* =========================================================
+   LOADER
+   ========================================================= */
+
 .loader {
   position: fixed;
   inset: 0;
+
   z-index: 100;
 
   display: grid;
@@ -132,8 +168,13 @@ body {
   pointer-events: none;
 }
 
+/* =========================================================
+   INTRO
+   ========================================================= */
+
 .intro {
   position: absolute;
+
   z-index: 5;
 
   left: 50%;
@@ -151,10 +192,18 @@ body {
 }
 
 .intro h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(3.5rem, 10vw, 8rem);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(3.5rem, 10vw, 8rem);
+
   font-weight: 400;
+
   line-height: 0.9;
+
   letter-spacing: 0.08em;
 
   color: var(--ivory);
@@ -167,7 +216,9 @@ body {
   margin-top: 1.25rem;
 
   font-size: 0.7rem;
+
   letter-spacing: 0.42em;
+
   text-transform: uppercase;
 
   color: var(--champ);
@@ -176,31 +227,54 @@ body {
 .tag {
   margin-top: 1.5rem;
 
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(0.95rem, 2vw, 1.25rem);
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(0.95rem, 2vw, 1.25rem);
+
   font-style: italic;
 
-  color: rgba(245, 240, 234, 0.82);
+  color:
+    rgba(245, 240, 234, 0.82);
 }
+
+/* =========================================================
+   SCROLL INDICATOR
+   ========================================================= */
 
 .scroll {
   position: absolute;
+
   z-index: 6;
 
   left: 50%;
-  bottom: max(2rem, env(safe-area-inset-bottom));
+
+  bottom:
+    max(
+      2rem,
+      env(safe-area-inset-bottom)
+    );
 
   transform: translateX(-50%);
 
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   gap: 0.75rem;
 
-  color: rgba(245, 240, 234, 0.72);
+  color:
+    rgba(245, 240, 234, 0.72);
 
   font-size: 0.6rem;
+
   letter-spacing: 0.32em;
+
   white-space: nowrap;
 
   pointer-events: none;
@@ -212,21 +286,29 @@ body {
   width: 1px;
   height: 42px;
 
-  background: linear-gradient(
-    to bottom,
-    rgba(245, 240, 234, 0.8),
-    transparent
-  );
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(245, 240, 234, 0.8),
+      transparent
+    );
 }
+
+/* =========================================================
+   PERFUME GLOW
+   ========================================================= */
 
 .glow {
   position: absolute;
+
   z-index: 3;
 
   left: 50%;
   top: 50%;
 
-  width: min(65vw, 520px);
+  width:
+    min(65vw, 520px);
+
   aspect-ratio: 1;
 
   transform:
@@ -250,14 +332,21 @@ body {
   pointer-events: none;
 }
 
+/* =========================================================
+   PERFUME BOTTLE
+   ========================================================= */
+
 .bottle {
   position: absolute;
+
   z-index: 4;
 
   left: 50%;
   bottom: 8%;
 
-  width: min(42vw, 430px);
+  width:
+    min(42vw, 430px);
+
   max-height: 72vh;
 
   opacity: 0;
@@ -267,13 +356,15 @@ body {
     rotate(-10deg)
     scale(0.92);
 
-  transform-origin: center bottom;
+  transform-origin:
+    center bottom;
 
   pointer-events: none;
 }
 
 .float {
-  animation: floatBottle 5s ease-in-out infinite;
+  animation:
+    floatBottle 5s ease-in-out infinite;
 }
 
 .bottle img {
@@ -281,26 +372,40 @@ body {
 
   width: 100%;
   height: auto;
+
   max-height: 72vh;
 
   object-fit: contain;
 
   user-select: none;
+
   -webkit-user-drag: none;
 
   filter:
-    drop-shadow(0 25px 35px rgba(0, 0, 0, 0.45))
-    drop-shadow(0 0 35px rgba(232, 184, 199, 0.15));
+    drop-shadow(
+      0 25px 35px
+      rgba(0, 0, 0, 0.45)
+    )
+    drop-shadow(
+      0 0 35px
+      rgba(232, 184, 199, 0.15)
+    );
 }
+
+/* =========================================================
+   END TEXT
+   ========================================================= */
 
 .end {
   position: absolute;
+
   z-index: 7;
 
   left: 50%;
   bottom: 8%;
 
-  width: min(90vw, 620px);
+  width:
+    min(90vw, 620px);
 
   transform:
     translate(-50%, 14px);
@@ -313,17 +418,28 @@ body {
 }
 
 .end h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
 
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-size:
+    clamp(2.8rem, 7vw, 5.5rem);
+
   font-weight: 400;
+
   letter-spacing: 0.08em;
 
   color: var(--ivory);
 }
 
+/* =========================================================
+   BUTTERFLY
+   ========================================================= */
+
 .butterfly {
   position: absolute;
+
   z-index: 6;
 
   left: 0;
@@ -335,23 +451,33 @@ body {
   opacity: 0;
 
   pointer-events: none;
-  will-change: transform, opacity;
+
+  will-change:
+    transform,
+    opacity;
 }
 
 .butterfly svg {
   display: block;
+
   width: 100%;
   height: 100%;
 }
 
+/* =========================================================
+   BOTTLE FLOAT
+   ========================================================= */
+
 @keyframes floatBottle {
   0%,
   100% {
-    transform: translateY(0);
+    transform:
+      translateY(0);
   }
 
   50% {
-    transform: translateY(-12px);
+    transform:
+      translateY(-12px);
   }
 }
 
@@ -366,22 +492,21 @@ body {
     width: 100%;
     min-width: 100%;
     min-height: 100%;
+
     background: var(--bg);
   }
 
-  html {
-    overscroll-behavior: none;
-  }
-
+  html,
   body {
     overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
   }
 
   .track {
     width: 100%;
-    min-height: 600vh;
+
     height: 600vh;
+    min-height: 600vh;
+
     background: var(--bg);
   }
 
@@ -402,15 +527,23 @@ body {
     background: var(--bg);
   }
 
+  /*
+    مهم:
+    نستخدم cover فقط على الهاتف حتى لا تظهر
+    مساحات سوداء جانبية أو علوية.
+
+    ونبقي مركز الفيديو في المنتصف حتى لا يذهب
+    العطر والاسم إلى أحد الأطراف.
+  */
   .stage video {
     position: absolute;
 
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
+
+    display: block;
 
     width: 100vw;
+
     height: 100vh;
     height: 100dvh;
 
@@ -418,7 +551,8 @@ body {
     min-height: 100%;
 
     object-fit: cover;
-    object-position: center;
+
+    object-position: 50% 50%;
 
     background: var(--bg);
 
@@ -427,43 +561,70 @@ body {
   }
 
   .shade {
+    position: absolute;
+    inset: 0;
+
+    z-index: 2;
+
     background:
       linear-gradient(
         to bottom,
-        rgba(9, 9, 18, 0.08),
-        transparent 25%,
-        transparent 70%,
-        rgba(9, 9, 18, 0.28)
+        rgba(9, 9, 18, 0.06),
+        transparent 24%,
+        transparent 72%,
+        rgba(9, 9, 18, 0.24)
       );
   }
 
+  /* =====================================================
+     MOBILE INTRO
+     ===================================================== */
+
   .intro {
+    left: 50%;
+    top: 50%;
+
     width: 88vw;
+
+    text-align: center;
   }
 
   .intro h1 {
-    font-size: clamp(3.2rem, 18vw, 5rem);
+    font-size:
+      clamp(3.2rem, 18vw, 5rem);
+
     letter-spacing: 0.055em;
   }
 
   .sub {
     margin-top: 1rem;
+
     font-size: 0.58rem;
+
     letter-spacing: 0.34em;
   }
 
   .tag {
     margin-top: 1.2rem;
+
     font-size: 0.95rem;
   }
 
+  /* =====================================================
+     MOBILE SCROLL
+     ===================================================== */
+
   .scroll {
-    bottom: max(
-      1.5rem,
-      env(safe-area-inset-bottom)
-    );
+    left: 50%;
+
+    bottom:
+      max(
+        1.5rem,
+        env(safe-area-inset-bottom)
+      );
 
     font-size: 0.52rem;
+
     letter-spacing: 0.25em;
   }
 
@@ -471,32 +632,60 @@ body {
     height: 34px;
   }
 
+  /* =====================================================
+     MOBILE GLOW
+     ===================================================== */
+
   .glow {
     width: 90vw;
+
     filter: blur(20px);
   }
 
-  .bottle {
-    width: min(68vw, 330px);
-    max-height: 65vh;
+  /* =====================================================
+     MOBILE BOTTLE
+     ===================================================== */
 
-    bottom: 11%;
+  .bottle {
+    left: 50%;
+
+    width:
+      min(62vw, 300px);
+
+    max-height: 62vh;
+
+    bottom: 12%;
   }
 
   .bottle img {
-    max-height: 65vh;
+    width: 100%;
+
+    max-height: 62vh;
   }
 
+  /* =====================================================
+     MOBILE END
+     ===================================================== */
+
   .end {
+    left: 50%;
+
     width: 88vw;
-    bottom: max(
-      7%,
-      env(safe-area-inset-bottom)
-    );
+
+    bottom:
+      max(
+        7%,
+        env(safe-area-inset-bottom)
+      );
   }
 
   .end h2 {
-    font-size: clamp(2.5rem, 14vw, 4rem);
+    font-size:
+      clamp(
+        2.5rem,
+        14vw,
+        4rem
+      );
   }
 
   .end .sub {
@@ -509,7 +698,7 @@ body {
 }
 
 /* =========================================================
-   SMALL PHONES
+   VERY SMALL PHONES
    ========================================================= */
 
 @media (max-width: 390px) {
@@ -518,8 +707,9 @@ body {
   }
 
   .bottle {
-    width: 72vw;
-    bottom: 10%;
+    width: 68vw;
+
+    bottom: 11%;
   }
 
   .end h2 {
@@ -536,11 +726,13 @@ body {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+
     animation-iteration-count: 1 !important;
+
     scroll-behavior: auto !important;
   }
 
   .stage video {
     object-fit: cover;
   }
-}
+  }
