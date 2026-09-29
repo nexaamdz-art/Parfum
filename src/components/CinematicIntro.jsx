@@ -56,12 +56,11 @@ export default function CinematicIntro() {
       introOpacity;
 
     /*
-      مهم:
-      نحافظ على translateX(-50%)
-      حتى يبقى النص في منتصف الشاشة.
+      التمركز أصبح مسؤولية CSS translate.
+      JavaScript يحرك العنصر رأسيًا فقط.
     */
     intro.current.style.transform =
-      `translate(-50%, -50%) translateY(${
+      `translateY(${
         (1 - introOpacity) * -30
       }px)`;
 
@@ -128,7 +127,7 @@ export default function CinematicIntro() {
       glowProgress;
 
     glow.current.style.transform =
-      `translate(-50%, -50%) scale(${
+      `scale(${
         0.8 +
         glowProgress * 0.25
       })`;
@@ -148,13 +147,11 @@ export default function CinematicIntro() {
       bottleProgress;
 
     /*
-      مهم جدًا:
-      bottle لديه left: 50%.
-      لذلك يجب أن نضيف translateX(-50%).
-      هذا كان سبب ظهور العطر في الطرف.
+      لا نلمس translate الخاص بالتمركز.
+      JavaScript مسؤول فقط عن الحركة والدوران والحجم.
     */
     bottle.current.style.transform =
-      `translateX(-50%) translateY(${
+      `translateY(${
         (1 - bottleProgress) *
         110
       }px)` +
@@ -168,7 +165,7 @@ export default function CinematicIntro() {
       })`;
 
     /* =====================================================
-       END TEXT
+       END
        ===================================================== */
 
     const endProgress =
@@ -180,12 +177,8 @@ export default function CinematicIntro() {
     end.current.style.opacity =
       endProgress;
 
-    /*
-      نحافظ على translateX(-50%)
-      أثناء حركة النص النهائي.
-    */
     end.current.style.transform =
-      `translate(-50%, 0) translateY(${
+      `translateY(${
         (1 - endProgress) * 14
       }px)`;
   }, []);
