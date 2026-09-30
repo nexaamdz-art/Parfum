@@ -80,19 +80,27 @@ body {
   width: 100%;
   height: 100%;
 
-  object-fit: contain;
+  /*
+    Desktop:
+    يملأ الفيديو كامل الشاشة بدل ترك
+    فراغات بسبب اختلاف نسبة الأبعاد.
+  */
+  object-fit: cover;
   object-position: center center;
 
   display: block;
 
   background: var(--bg);
 
+  /*
+    تدرج خفيف جدًا على الأطراف.
+  */
   -webkit-mask-image:
     linear-gradient(
       90deg,
       transparent,
-      #000 22%,
-      #000 78%,
+      #000 12%,
+      #000 88%,
       transparent
     );
 
@@ -100,8 +108,8 @@ body {
     linear-gradient(
       90deg,
       transparent,
-      #000 22%,
-      #000 78%,
+      #000 12%,
+      #000 88%,
       transparent
     );
 }
@@ -469,6 +477,59 @@ body {
 }
 
 /* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media (min-width: 701px) {
+  .stage video {
+    /*
+      الفيديو يملأ مساحة الحاسوب بالكامل.
+      لا توجد حواف سوداء بسبب aspect ratio.
+    */
+    object-fit: cover;
+
+    /*
+      نرفع نقطة التركيز قليلًا حتى لا يتم
+      قص الجزء المهم من المشهد.
+    */
+    object-position: center 48%;
+
+    /*
+      تدرج أخف من السابق حتى لا تصبح
+      أطراف الفيديو مظلمة بشكل مبالغ.
+    */
+    -webkit-mask-image:
+      linear-gradient(
+        90deg,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+      );
+
+    mask-image:
+      linear-gradient(
+        90deg,
+        transparent,
+        #000 8%,
+        #000 92%,
+        transparent
+      );
+  }
+
+  .intro {
+    width: min(72vw, 760px);
+  }
+
+  .bottle {
+    width:
+      min(32vw, 430px);
+
+    bottom: 17%;
+  }
+}
+
+/* =========================================================
    MOBILE
    ========================================================= */
 
@@ -503,6 +564,9 @@ body {
     background: var(--bg);
   }
 
+  /*
+    الهاتف يبقى كما كان لأنه بالفعل جيد.
+  */
   .stage video {
     position: absolute;
     inset: 0;
@@ -601,9 +665,6 @@ body {
 
     max-height: 62vh;
 
-    /*
-      رفعنا العطر ليكون فوق موضعه السابق.
-    */
     bottom: 22%;
 
     translate: -50% 0;
