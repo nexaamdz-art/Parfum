@@ -191,6 +191,10 @@ export function useScrollScrub({
 
     if (video.readyState >= 1) {
       onLoaded();
+    } else {
+      try {
+        video.load();
+      } catch {}
     }
 
     const fallback =

@@ -224,6 +224,7 @@ export default function CinematicIntro() {
         <video
           ref={video}
           src={VIDEO_PATH}
+          poster="/assets/poster.jpg"
           muted
           playsInline
           preload="auto"
