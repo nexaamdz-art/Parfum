@@ -1,0 +1,8 @@
+{
+  "name": "NOCTURNE",
+  "description": "A cinematic perfume experience with scroll-scrubbed visual reveal.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

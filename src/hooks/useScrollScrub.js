@@ -26,10 +26,10 @@ export function useScrollScrub({
     let target = 0;
     let current = 0;
     let lastTime = -1;
+    let pendingTime = null;
 
     let raf = 0;
     let started = false;
-    let startTimer = 0;
 
     const getProgress = () => {
       const rect =
@@ -49,9 +49,33 @@ export function useScrollScrub({
       target = getProgress();
     };
 
+    const performSeek = (time) => {
+      if (video.seeking) {
+        pendingTime = time;
+        return;
+      }
+
+      try {
+        video.currentTime = time;
+        lastTime = time;
+        pendingTime = null;
+      } catch {}
+    };
+
+    const onSeeked = () => {
+      if (
+        pendingTime !== null &&
+        Math.abs(pendingTime - lastTime) > 0.015
+      ) {
+        const next = pendingTime;
+        pendingTime = null;
+        performSeek(next);
+      }
+    };
+
     const seekVideo = (progress) => {
       if (
-        video.readyState < 2 ||
+        video.readyState < 1 ||
         !Number.isFinite(video.duration) ||
         video.duration <= 0
       ) {
@@ -74,8 +98,7 @@ export function useScrollScrub({
        * Protect mobile browsers from seeking
        * outside currently available ranges.
        */
-
-      if (video.seekable.length > 0) {
+      if (video.seekable && video.seekable.length > 0) {
         const first =
           video.seekable.start(0);
 
@@ -92,19 +115,15 @@ export function useScrollScrub({
 
       if (
         Number.isFinite(time) &&
-        Math.abs(time - lastTime) >
-          0.012
+        Math.abs(time - lastTime) > 0.015
       ) {
-        try {
-          video.currentTime = time;
-          lastTime = time;
-        } catch {}
+        performSeek(time);
       }
     };
 
     const tick = () => {
       current +=
-        (target - current) * 0.14;
+        (target - current) * 0.16;
 
       if (
         Math.abs(target - current) <
@@ -148,12 +167,15 @@ export function useScrollScrub({
         return;
       }
 
-      video.pause();
+      try {
+        video.pause();
+      } catch {}
 
       target = current =
         getProgress();
 
       onReady?.();
+      onFrame(current);
 
       window.addEventListener(
         "scroll",
@@ -171,10 +193,6 @@ export function useScrollScrub({
     };
 
     const onLoaded = () => {
-      if (startTimer) {
-        clearTimeout(startTimer);
-      }
-
       if (
         Number.isFinite(
           video.duration
@@ -186,18 +204,12 @@ export function useScrollScrub({
         } catch {}
       }
 
-      startTimer =
-        window.setTimeout(
-          start,
-          150
-        );
+      start();
     };
 
     const onVideoError = () => {
-      if (startTimer) {
-        clearTimeout(startTimer);
-      }
-
+      // Graceful fallback: start animations even if video fails
+      start();
       onError?.();
     };
 
@@ -212,28 +224,33 @@ export function useScrollScrub({
     );
 
     video.addEventListener(
+      "canplay",
+      onLoaded
+    );
+
+    video.addEventListener(
+      "seeked",
+      onSeeked
+    );
+
+    video.addEventListener(
       "error",
       onVideoError
     );
 
-    if (video.readyState >= 2) {
+    if (video.readyState >= 1) {
       onLoaded();
     }
 
     const fallback =
       window.setTimeout(() => {
-        if (video.readyState >= 1) {
-          start();
-        } else {
-          onError?.();
-        }
-      }, 8000);
+        start();
+      }, 1200);
 
     return () => {
       cancelAnimationFrame(raf);
 
       clearTimeout(fallback);
-      clearTimeout(startTimer);
 
       video.removeEventListener(
         "loadedmetadata",
@@ -243,6 +260,16 @@ export function useScrollScrub({
       video.removeEventListener(
         "loadeddata",
         onLoaded
+      );
+
+      video.removeEventListener(
+        "canplay",
+        onLoaded
+      );
+
+      video.removeEventListener(
+        "seeked",
+        onSeeked
       );
 
       video.removeEventListener(

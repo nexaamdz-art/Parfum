@@ -226,7 +226,7 @@ export default function CinematicIntro() {
           src={VIDEO_PATH}
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-hidden="true"
           tabIndex={-1}
           disablePictureInPicture
