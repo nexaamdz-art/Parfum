@@ -26,7 +26,7 @@ export function useScrollScrub({
     let target = 0;
     let current = 0;
     let lastTime = -1;
-    let pendingTime = null;
+    let lastSeekTimestamp = 0;
 
     let raf = 0;
     let started = false;
@@ -49,33 +49,8 @@ export function useScrollScrub({
       target = getProgress();
     };
 
-    const performSeek = (time) => {
-      if (video.seeking) {
-        pendingTime = time;
-        return;
-      }
-
-      try {
-        video.currentTime = time;
-        lastTime = time;
-        pendingTime = null;
-      } catch {}
-    };
-
-    const onSeeked = () => {
+    const seekVideo = (progress, force = false) => {
       if (
-        pendingTime !== null &&
-        Math.abs(pendingTime - lastTime) > 0.015
-      ) {
-        const next = pendingTime;
-        pendingTime = null;
-        performSeek(next);
-      }
-    };
-
-    const seekVideo = (progress) => {
-      if (
-        video.readyState < 1 ||
         !Number.isFinite(video.duration) ||
         video.duration <= 0
       ) {
@@ -92,47 +67,32 @@ export function useScrollScrub({
         clamp(progress / endAt) *
         maxTime;
 
-      let time = desired;
-
-      /*
-       * Protect mobile browsers from seeking
-       * outside currently available ranges.
-       */
-      if (video.seekable && video.seekable.length > 0) {
-        const first =
-          video.seekable.start(0);
-
-        const last =
-          video.seekable.end(
-            video.seekable.length - 1
-          );
-
-        time = Math.min(
-          Math.max(desired, first),
-          Math.max(first, last - 0.05)
-        );
+      if (!Number.isFinite(desired)) {
+        return;
       }
 
-      if (
-        Number.isFinite(time) &&
-        Math.abs(time - lastTime) > 0.015
-      ) {
-        performSeek(time);
+      const now = performance.now();
+      if (force || (now - lastSeekTimestamp > 25 && Math.abs(desired - lastTime) > 0.01)) {
+        try {
+          video.currentTime = desired;
+          lastTime = desired;
+          lastSeekTimestamp = now;
+        } catch {}
       }
     };
 
     const tick = () => {
       current +=
-        (target - current) * 0.16;
+        (target - current) * 0.14;
 
-      if (
-        Math.abs(target - current) <
-        0.0002
-      ) {
+      const settled =
+        Math.abs(target - current) < 0.0002;
+
+      if (settled) {
         current = target;
       }
 
-      seekVideo(current);
+      seekVideo(current, settled);
 
       onFrame(current);
 
@@ -154,11 +114,13 @@ export function useScrollScrub({
           ) &&
           video.duration > 0
         ) {
-          video.currentTime =
-            Math.max(
-              0,
-              video.duration - 0.05
-            );
+          try {
+            video.currentTime =
+              Math.max(
+                0,
+                video.duration - 0.05
+              );
+          } catch {}
         }
 
         onReady?.();
@@ -176,6 +138,7 @@ export function useScrollScrub({
 
       onReady?.();
       onFrame(current);
+      seekVideo(current, true);
 
       window.addEventListener(
         "scroll",
@@ -193,22 +156,10 @@ export function useScrollScrub({
     };
 
     const onLoaded = () => {
-      if (
-        Number.isFinite(
-          video.duration
-        ) &&
-        video.duration > 0
-      ) {
-        try {
-          video.currentTime = 0;
-        } catch {}
-      }
-
       start();
     };
 
     const onVideoError = () => {
-      // Graceful fallback: start animations even if video fails
       start();
       onError?.();
     };
@@ -229,8 +180,8 @@ export function useScrollScrub({
     );
 
     video.addEventListener(
-      "seeked",
-      onSeeked
+      "canplaythrough",
+      onLoaded
     );
 
     video.addEventListener(
@@ -245,7 +196,7 @@ export function useScrollScrub({
     const fallback =
       window.setTimeout(() => {
         start();
-      }, 1200);
+      }, 800);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -268,8 +219,8 @@ export function useScrollScrub({
       );
 
       video.removeEventListener(
-        "seeked",
-        onSeeked
+        "canplaythrough",
+        onLoaded
       );
 
       video.removeEventListener(
