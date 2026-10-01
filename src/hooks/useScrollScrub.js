@@ -7,9 +7,7 @@ export function useScrollScrub({
   trackRef,
   videoRef,
   onFrame,
-  onReady,
-  onError,
-  endAt = 0.8
+  endAt = 1.0
 }) {
   useEffect(() => {
     const track = trackRef.current;
@@ -27,22 +25,12 @@ export function useScrollScrub({
     let current = 0;
     let lastTime = -1;
     let lastSeekTimestamp = 0;
-
     let raf = 0;
-    let started = false;
 
     const getProgress = () => {
-      const rect =
-        track.getBoundingClientRect();
-
-      return clamp(
-        -rect.top /
-          Math.max(
-            1,
-            rect.height -
-              window.innerHeight
-          )
-      );
+      const rect = track.getBoundingClientRect();
+      const maxScroll = Math.max(1, rect.height - window.innerHeight);
+      return clamp(-rect.top / maxScroll);
     };
 
     const onScroll = () => {
@@ -51,28 +39,22 @@ export function useScrollScrub({
 
     const seekVideo = (progress, force = false) => {
       if (
+        !video ||
         !Number.isFinite(video.duration) ||
         video.duration <= 0
       ) {
         return;
       }
 
-      const maxTime =
-        Math.max(
-          0,
-          video.duration - 0.05
-        );
-
-      const desired =
-        clamp(progress / endAt) *
-        maxTime;
+      const maxTime = Math.max(0, video.duration - 0.001);
+      const desired = clamp(progress / endAt) * maxTime;
 
       if (!Number.isFinite(desired)) {
         return;
       }
 
       const now = performance.now();
-      if (force || (now - lastSeekTimestamp > 25 && Math.abs(desired - lastTime) > 0.01)) {
+      if (force || (now - lastSeekTimestamp > 32 && Math.abs(desired - lastTime) > 0.012)) {
         try {
           video.currentTime = desired;
           lastTime = desired;
@@ -82,172 +64,63 @@ export function useScrollScrub({
     };
 
     const tick = () => {
-      current +=
-        (target - current) * 0.14;
+      current += (target - current) * 0.16;
 
-      const settled =
-        Math.abs(target - current) < 0.0002;
-
+      const settled = Math.abs(target - current) < 0.0003;
       if (settled) {
         current = target;
       }
 
       seekVideo(current, settled);
-
       onFrame(current);
 
-      raf =
-        requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     };
 
-    const start = () => {
-      if (started) {
-        return;
+    if (reduce) {
+      if (Number.isFinite(video.duration) && video.duration > 0) {
+        try {
+          video.currentTime = Math.max(0, video.duration - 0.05);
+        } catch {}
       }
+      onFrame(1);
+      return;
+    }
 
-      started = true;
+    try {
+      video.pause();
+    } catch {}
 
-      if (reduce) {
-        if (
-          Number.isFinite(
-            video.duration
-          ) &&
-          video.duration > 0
-        ) {
-          try {
-            video.currentTime =
-              Math.max(
-                0,
-                video.duration - 0.05
-              );
-          } catch {}
-        }
+    // Initialize immediately on first frame
+    target = current = getProgress();
+    onFrame(current);
 
-        onReady?.();
-        onFrame(1);
+    // Listen to scroll events right away
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    raf = requestAnimationFrame(tick);
 
-        return;
-      }
-
-      try {
-        video.pause();
-      } catch {}
-
-      target = current =
-        getProgress();
-
-      onReady?.();
-      onFrame(current);
+    const syncVideo = () => {
       seekVideo(current, true);
-
-      window.addEventListener(
-        "scroll",
-        onScroll,
-        { passive: true }
-      );
-
-      window.addEventListener(
-        "resize",
-        onScroll
-      );
-
-      raf =
-        requestAnimationFrame(tick);
     };
 
-    const onLoaded = () => {
-      start();
-    };
-
-    const onVideoError = () => {
-      start();
-      onError?.();
-    };
-
-    video.addEventListener(
-      "loadedmetadata",
-      onLoaded
-    );
-
-    video.addEventListener(
-      "loadeddata",
-      onLoaded
-    );
-
-    video.addEventListener(
-      "canplay",
-      onLoaded
-    );
-
-    video.addEventListener(
-      "canplaythrough",
-      onLoaded
-    );
-
-    video.addEventListener(
-      "error",
-      onVideoError
-    );
+    video.addEventListener("loadedmetadata", syncVideo);
+    video.addEventListener("canplay", syncVideo);
 
     if (video.readyState >= 1) {
-      onLoaded();
+      syncVideo();
     } else {
       try {
         video.load();
       } catch {}
     }
 
-    const fallback =
-      window.setTimeout(() => {
-        start();
-      }, 800);
-
     return () => {
       cancelAnimationFrame(raf);
-
-      clearTimeout(fallback);
-
-      video.removeEventListener(
-        "loadedmetadata",
-        onLoaded
-      );
-
-      video.removeEventListener(
-        "loadeddata",
-        onLoaded
-      );
-
-      video.removeEventListener(
-        "canplay",
-        onLoaded
-      );
-
-      video.removeEventListener(
-        "canplaythrough",
-        onLoaded
-      );
-
-      video.removeEventListener(
-        "error",
-        onVideoError
-      );
-
-      window.removeEventListener(
-        "scroll",
-        onScroll
-      );
-
-      window.removeEventListener(
-        "resize",
-        onScroll
-      );
+      video.removeEventListener("loadedmetadata", syncVideo);
+      video.removeEventListener("canplay", syncVideo);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
-  }, [
-    trackRef,
-    videoRef,
-    onFrame,
-    onReady,
-    onError,
-    endAt
-  ]);
+  }, [trackRef, videoRef, onFrame, endAt]);
 }

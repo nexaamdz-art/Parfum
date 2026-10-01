@@ -140,30 +140,12 @@ body {
    ========================================================= */
 
 .loader {
-  position: fixed;
-  inset: 0;
-
-  z-index: 100;
-
-  display: grid;
-  place-items: center;
-
-  background: var(--bg);
-  color: var(--ivory);
-
-  font-size: 0.75rem;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-
-  transition:
-    opacity 0.5s ease,
-    visibility 0.5s ease;
+  display: none !important;
 }
 
-.loader.off {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+.bottle picture {
+  display: block;
+  width: 100%;
 }
 
 /* =========================================================
@@ -583,6 +565,9 @@ body {
 
     -webkit-mask-image: none;
     mask-image: none;
+
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   .intro {

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import {
   VIDEO_PATH,
   BRAND_NAME,
@@ -26,9 +26,6 @@ export default function CinematicIntro() {
   const bottle = useRef(null);
   const end = useRef(null);
   const fly = useRef(null);
-
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState(false);
 
   const onFrame = useCallback((p) => {
     if (
@@ -183,21 +180,10 @@ export default function CinematicIntro() {
       }px)`;
   }, []);
 
-  const handleReady = useCallback(() => {
-    setReady(true);
-    setError(false);
-  }, []);
-
-  const handleError = useCallback(() => {
-    setError(true);
-  }, []);
-
   useScrollScrub({
     trackRef: track,
     videoRef: video,
-    onFrame,
-    onReady: handleReady,
-    onError: handleError
+    onFrame
   });
 
   return (
@@ -205,18 +191,6 @@ export default function CinematicIntro() {
       className="track"
       ref={track}
     >
-      <div
-        className={`loader ${
-          ready || error ? "off" : ""
-        }`}
-        role="status"
-        aria-live="polite"
-      >
-        {error
-          ? "Unable to load Nocturne"
-          : BRAND_NAME}
-      </div>
-
       <section
         className="stage"
         aria-label={`${BRAND_NAME}, ${TAGLINE}`}

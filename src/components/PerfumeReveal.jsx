@@ -23,12 +23,15 @@ export default function PerfumeReveal({
         ref={bottleRef}
       >
         <div className="float">
-          <img
-            src={BOTTLE_IMAGE_PATH}
-            alt={`${BRAND_NAME} ${SUBTITLE} perfume bottle`}
-            decoding="async"
-            draggable="false"
-          />
+          <picture>
+            <source srcSet="/assets/bottle.webp" type="image/webp" />
+            <img
+              src={BOTTLE_IMAGE_PATH}
+              alt={`${BRAND_NAME} ${SUBTITLE} perfume bottle`}
+              decoding="async"
+              draggable="false"
+            />
+          </picture>
         </div>
       </div>
 
